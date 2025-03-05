@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>My Game</title>
+        <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+        <style> body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; } </style>
+    </head>
+
+
+<body>
+    <script>
+        var config = {
+            type: Phaser.AUTO,
+            width: 1200,
+            height: 600,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 300 },
+                    debug: true
+                }
+            },
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
+
+        var game = new Phaser.Game(config);
+
+        var plataforma;
+        var player;
+        var cursors;
+        var tempo = 0;
+        var pontos = 0;
+        var gameOver = false;
+        var tempoTexto;
+        var hitLava;
+        var cano;
+        var tijolos1;
+        var tijolos2;
+        var tijolos3;
+        var tijolos4;
+        var parede;
+        var vermelho;
+        var laranja;
+
+        function preload ()
+        {
+            this.load.image('sky', 'assets/sky.png');
+            this.load.image('bloco', 'assets/bloco.png');
+            this.load.image('moeda', 'assets/moeda.png');
+            this.load.image('piso', 'assets/piso.png');
+            this.load.image('lava', 'assets/lava.png');
+            this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+            this.load.image('tijolos', 'assets/tijolos.png');
+            this.load.image('cano', 'assets/cano.png');
+            this.load.image('parede', 'assets/parede.png');
+            this.load.spritesheet('fogo', 'assets/fogo.png', { frameWidth: 180, frameHeight: 140 });  //fremeWidth e frameHeight são as dimensões do sprite
+            this.load.image('nuvem', 'assets/nuvem.png');
+            this.load.image('chegada', 'assets/chegada.png');
+            this.load.image('laranja', 'assets/laranja.png');
+            this.load.image('vermelho', 'assets/vermelho.png');
+        }
+        function create ()
+        {
+            this.add.image(400, 300, 'sky');
+
+            plataforma = this.physics.add.staticGroup();
+            let piso = plataforma.create(275, 600, 'piso');
+            cano = this.physics.add.staticImage(1000, 410, 'cano').setScale(0.1).refreshBody();
+            
+            //fogo 1
+            fogo = this.physics.add.sprite(700, 200, 'fogo').setScale(0.5).setAngle(90);
+            this.anims.create({
+                key: 'fogo',
+                frames: this.anims.generateFrameNumbers('fogo', { start: 0, end: 3 }),
+                frameRate: 9, // Aumenta a velocidade da animação
+                repeat: -1
+            });
+            fogo.anims.play('fogo', true);
+            this.tweens.add({
+            targets: fogo,  
+            y: 550,          // Altura máxima que ele alcança
+            duration: 1500,  // Tempo para percorrer (em milissegundos)
+            yoyo: true,      // Faz o fogo voltar ao ponto inicial
+            repeat: -1,      // Repete infinitamente
+            ease: 'Linear'   // Mantém a velocidade constante
+            });
+            fogo.body.setSize(50, 50); // Ajusta o tamanho da hitbox do fogo
+            fogo.body.setOffset(40, 70); // Ajusta a posição da hitbox no sprite
+
+            //FOGO 2
+            fogo2 = this.physics.add.sprite(800, 200, 'fogo').setScale(0.5).setAngle(90);
+            this.anims.create({
+                key: 'fogo',
+                frames: this.anims.generateFrameNumbers('fogo', { start: 0, end: 3 }),
+                frameRate: 9, // Aumenta a velocidade da animação
+                repeat: -1
+            });
+            fogo2.anims.play('fogo', true);
+            this.tweens.add({
+            targets: fogo2,  
+            y: 550,          // Altura máxima que ele alcança
+            duration: 1500,  // Tempo para percorrer (em milissegundos)
+            yoyo: true,      // Faz o fogo voltar ao ponto inicial
+            repeat: -1,      // Repete infinitamente
+            ease: 'Linear'   // Mantém a velocidade constante
+            });
+            fogo2.body.setSize(50, 50); // Ajusta o tamanho da hitbox do fogo
+            fogo2.body.setOffset(40, 70); // Ajusta a posição da hitbox no sprite
+            
+            //FOGO 3
+            fogo3 = this.physics.add.sprite(750, 200, 'fogo').setScale(0.5).setAngle(90);
+            this.anims.create({
+                key: 'fogo',
+                frames: this.anims.generateFrameNumbers('fogo', { start: 0, end: 3 }),
+                frameRate: 9, // Aumenta a velocidade da animação
+                repeat: -1
+            });
+            fogo3.anims.play('fogo', true);
+            this.tweens.add({
+            targets: fogo3,  
+            y: 550,          // Altura máxima que ele alcança
+            duration: 1500,  // Tempo para percorrer (em milissegundos)
+            yoyo: true,      // Faz o fogo voltar ao ponto inicial
+            repeat: -1,      // Repete infinitamente
+            ease: 'Linear'   // Mantém a velocidade constante
+            });
+            fogo3.body.setSize(50, 50); // Ajusta o tamanho da hitbox do fogo
+            fogo3.body.setOffset(40, 70); // Ajusta a posição da hitbox no sprite
+
+
+
+            let lava = this.physics.add.staticImage(825, 580, 'lava');
+
+            //tijolos
+            tijolos1 = this.physics.add.staticImage(55, 430, 'tijolos').setScale(0.7).refreshBody();
+            tijolos2 = this.physics.add.staticImage(305, 330, 'tijolos').setScale(0.7).refreshBody();
+            tijolos3 = this.physics.add.staticImage(55, 230, 'tijolos').setScale(0.7).refreshBody();
+            tijolos4 = this.physics.add.staticImage(305, 130, 'tijolos').setScale(0.7).refreshBody();
+            tijolos5 = this.physics.add.staticImage(510, 500, 'tijolos').setScale(0.7).refreshBody();
+
+            //bloco
+            bloco1 = this.physics.add.staticImage(640, 420, 'bloco').setScale(0.06).refreshBody();
+            bloco2 = this.physics.add.staticImage(860, 380, 'bloco').setScale(0.06).refreshBody();
+            bloco3 = this.physics.add.staticImage(1130, 440, 'bloco').setScale(0.06).refreshBody();
+            bloco4 = this.physics.add.staticImage(800, 210, 'bloco').setScale(0.06).refreshBody();
+
+            //moedas
+            moeda1 = this.physics.add.staticImage(55, 395, 'moeda').setScale(0.01).refreshBody();
+            moeda2 = this.physics.add.staticImage(305, 295, 'moeda').setScale(0.01).refreshBody();
+            moeda3 = this.physics.add.staticImage(55, 195, 'moeda').setScale(0.01).refreshBody();
+            moeda4 = this.physics.add.staticImage(305, 95, 'moeda').setScale(0.01).refreshBody();
+            moeda5 = this.physics.add.staticImage(500, 465, 'moeda').setScale(0.01).refreshBody();
+            moeda6 = this.physics.add.staticImage(1000, 295, 'moeda').setScale(0.01).refreshBody();
+
+
+            laranja = this.physics.add.staticImage(600, 100, 'laranja').setScale(0.09).refreshBody();
+            vermelho = this.physics.add.staticImage(1130, 400, 'vermelho').setScale(0.08).refreshBody();
+
+            //chegada
+            chegada = this.physics.add.staticImage(630, 150, 'chegada').setScale(1).refreshBody();
+
+            //nuvem para bloquear personagem de pular parte do trajeto
+            nuvem = this.physics.add.staticImage(1000, 140, 'nuvem').setScale(0.3).refreshBody();
+
+            parede = this.physics.add.staticImage(410, 310, 'parede').setScale(1.1).refreshBody();
+            
+            // Ajusta a hitbox de TUDO
+            piso.body.setSize(600, 150, true);  // Define a largura e altura da hitbox
+            lava.body.setSize(800, 120, true);  // Define a largura e altura da hitbox
+            nuvem.body.setSize(50, 200, true);  // Define a largura e altura da hitbox
+            nuvem.body.setOffset(-300, 50);  
+            chegada.body.setSize(120, 30, true);  
+            laranja.body.setSize(30, 30, true);
+            vermelho.body.setSize(30, 30, true);
+            moeda1.body.setSize(30, 30, true);
+            moeda2.body.setSize(30, 30, true);
+            moeda3.body.setSize(30, 30, true);
+            moeda4.body.setSize(30, 30, true);
+            moeda5.body.setSize(30, 30, true);
+            moeda6.body.setSize(30, 30, true);
+            //parede dificil dmais
+            parede.body.setSize(90, 430, true);  // Define a largura e altura da hitbox
+            parede.body.setOffset(170, 5);  // Ajusta a posição da hitbox para alinhar com o sprite
+
+            //parte do jogador
+            player = this.physics.add.sprite(200, 300, 'dude'); //100,500
+            player.setCollideWorldBounds(true); //não deixa o jogador sair da tela
+            player.setMass(10); // O valor padrão é 1, então aumentar o tornará mais pesado mas nao muda o tempo q ele car ;/
+            player.setGravityY(350); // Aumenta a gravidade do jogador (padrão é 300)
+
+
+
+            //colições
+            this.physics.add.collider(player, plataforma);
+            this.physics.add.collider(player, piso);
+            this.physics.add.collider(player, cano);
+            this.physics.add.collider(player, parede);
+            this.physics.add.collider(player, tijolos1);
+            this.physics.add.collider(player, tijolos2);
+            this.physics.add.collider(player, tijolos3);
+            this.physics.add.collider(player, tijolos4);
+            this.physics.add.collider(player, nuvem);
+            this.physics.add.collider(player, tijolos5);
+            this.physics.add.collider(player, bloco1);
+            this.physics.add.collider(player, bloco2);
+            this.physics.add.collider(player, bloco3);
+            this.physics.add.collider(player, bloco4);
+            this.physics.add.collider(player, chegada);
+
+            //colisao com pontos
+            function coletarMoeda(player, moeda) {
+            moeda.destroy(); // Remove a moeda
+            pontos += 10; 
+            pontosTexto.setText('Pontos: ' + pontos); 
+            }
+            function coletarVermelho(player, vermelho){
+            vermelho.destroy();
+            pontos += 40;
+            pontosTexto.setText('Pontos: '+ pontos);
+            }
+            
+            // Adiciona colisão entre player e pontos
+            this.physics.add.overlap(player, moeda1, coletarMoeda, null, this);
+            this.physics.add.overlap(player, moeda2, coletarMoeda, null, this);
+            this.physics.add.overlap(player, moeda3, coletarMoeda, null, this);
+            this.physics.add.overlap(player, moeda4, coletarMoeda, null, this);
+            this.physics.add.overlap(player, moeda5, coletarMoeda, null, this);
+            this.physics.add.overlap(player, moeda6, coletarMoeda, null, this);
+            this.physics.add.overlap(player, vermelho, coletarVermelho, null, this)
+
+            //colisão com morte
+            hitLava = function(player, lava){
+                this.physics.pause();
+                player.setTint(0xff0000);
+                player.anims.play('turn');
+                tempo.stop();
+                gameOver = true;
+            }        
+            this.physics.add.overlap(player, lava, hitLava, null, this);
+            this.physics.add.overlap(player, fogo, hitLava, null, this);
+            this.physics.add.overlap(player, fogo2, hitLava, null, this);
+            this.physics.add.overlap(player, fogo3, hitLava, null, this);
+
+
+            //animacao player
+            this.anims.create({
+                key: 'left',
+                frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+                frameRate: 10,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'turn',
+                frames: [ { key: 'dude', frame: 4 } ],
+                frameRate: 20
+            });
+
+            this.anims.create({
+                key: 'right',
+                frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+                frameRate: 10,
+                repeat: -1
+            });
+            cursors = this.input.keyboard.createCursorKeys();
+
+
+            // Adiciona o texto no canto superior direito
+            tempoTexto = this.add.text(1000, 20, 'Tempo: 0s', {
+                fontSize: '32px',
+                fill: '#000',
+                fontFamily: 'Arial'
+            });
+            // Inicia o contador de tempo
+            this.time.addEvent({
+                delay: 1000, // Atualiza a cada segundo
+                callback: function() {
+                    tempo++;
+                    tempoTexto.setText('Tempo: ' + tempo + 's'); // Atualiza o texto na tela
+                },
+                loop: true
+            });
+
+            // Adiciona o texto no canto superior esquerdo
+            pontosTexto = this.add.text(20, 20, 'Pontos: 0', {
+                fontSize: '32px',
+                fill: '#000',
+                fontFamily: 'Arial'
+            });
+
+        }
+
+        function update ()
+        {
+
+
+
+            //movimentação do jogador
+            if (cursors.left.isDown)
+            {
+                player.setVelocityX(-200);
+
+                player.anims.play('left', true);
+            }
+            else if (cursors.right.isDown)
+            {
+                player.setVelocityX(200);
+
+                player.anims.play('right', true);
+            }
+            else
+            {
+                player.setVelocityX(0);
+
+                player.anims.play('turn');
+            }
+
+            if (cursors.up.isDown && player.body.touching.down)
+            {
+                player.setVelocityY(-400); //pulo -270 com gravidade 300
+            }
+
+
+            //if (fogo.subindo && fogo.y <= 410){
+            //    fogo.y += 5;
+            //}
+            //else if (fogo.descendo && fogo.y >= 500){
+             //   fogo.y -= 5;
+            //}
+
+
+
+        }
+    </script>
+</body>
+</html>
