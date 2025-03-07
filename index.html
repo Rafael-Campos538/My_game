@@ -215,14 +215,24 @@
 
             //colisao com pontos
             function coletarMoeda(player, moeda) {
-            moeda.destroy(); // Remove a moeda
-            pontos += 10; 
-            pontosTexto.setText('Pontos: ' + pontos); 
+                moeda.destroy(); // Remove a moeda
+                pontos += 10; 
+                pontosTexto.setText('Pontos: ' + pontos); 
             }
             function coletarVermelho(player, vermelho){
-            vermelho.destroy();
-            pontos += 40;
-            pontosTexto.setText('Pontos: '+ pontos);
+                vermelho.destroy();
+                pontos += 40;
+                pontosTexto.setText('Pontos: '+ pontos);
+            }
+            function coletarLaranja(player, laranja){
+                laranja.destroy();
+                pontos += 100;
+                pontosTexto.setText('Pontos: '+ pontos);
+                this.physics.pause();
+                player.setTint(0xff0000);
+                player.anims.play('turn');
+                tempo.stop();
+                gameOver = true;
             }
             
             // Adiciona colisão entre player e pontos
@@ -233,6 +243,7 @@
             this.physics.add.overlap(player, moeda5, coletarMoeda, null, this);
             this.physics.add.overlap(player, moeda6, coletarMoeda, null, this);
             this.physics.add.overlap(player, vermelho, coletarVermelho, null, this)
+            this.physics.add.overlap(player, laranja, coletarLaranja, null, this)
 
             //colisão com morte
             hitLava = function(player, lava){
